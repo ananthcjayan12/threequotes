@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import validate_email_address, get_url
 import json
+import re
 
 
 class ServiceRequest(Document):
@@ -67,6 +68,11 @@ class ServiceRequest(Document):
 	def process_boq_template(self, template_data):
 		"""Process BOQ template with variables"""
 		template_content = template_data.get("template_content", "")
+		# Simple markdown rendering: convert **bold** to <strong> and line breaks to <br/>
+		# Convert bold markers
+		template_content = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", template_content)
+		# Preserve line breaks
+		template_content = template_content.replace("\n", "<br/>")
 		variables = template_data.get("variables", "{}")
 		
 		try:
