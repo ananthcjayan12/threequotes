@@ -43,7 +43,12 @@ frappe.ui.form.on("Service Request", {
 					frappe.confirm(
 						__('Are you sure you want to send this BOQ to vendors?'),
 						function() {
-							frm.call('send_to_vendors').then(() => {
+							frappe.call({
+				method: 'threequotes.threequotes.doctype.service_request.service_request.send_boq_to_vendors',
+				args: {
+					request_id: frm.doc.name
+				}
+			}).then(() => {
 								frm.refresh();
 							});
 						}
