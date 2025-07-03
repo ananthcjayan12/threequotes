@@ -57,7 +57,7 @@ app_license = "mit"
 # ----------
 
 # application home page (will override Website Settings)
-# home_page = "login"
+home_page = "index"
 
 # website user home page (by Role)
 # role_home_page = {
@@ -244,6 +244,7 @@ app_license = "mit"
 
 # Web pages - these will be accessible as URLs
 website_route_rules = [
+	{"from_route": "/", "to_route": "index"},
 	{"from_route": "/admin", "to_route": "admin"},
 	{"from_route": "/vendor", "to_route": "vendor"},
 	{"from_route": "/request", "to_route": "request"},
