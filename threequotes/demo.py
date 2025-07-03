@@ -155,14 +155,20 @@ Please provide your detailed quotation for the above services.
     ]
     
     for template_data in templates:
-        template_name = f"{template_data['service_category']} - {template_data['template_name']}"
-        if not frappe.db.exists("BOQ Template", template_name):
-            template = frappe.new_doc("BOQ Template")
-            template.update(template_data)
-            template.insert()
-            print(f"Created BOQ template: {template_name}")
+        # map service_category into the mandatory "category" link field
+        template_data["category"] = template_data.pop("service_category")
+        title = f"{template_data['category']} - {template_data['template_name']}"
+        exists = frappe.db.exists("BOQ Template", {
+            "template_name": template_data["template_name"],
+            "category": template_data["category"]
+        })
+        if not exists:
+            tpl = frappe.new_doc("BOQ Template")
+            tpl.update(template_data)
+            tpl.insert()
+            print(f"Created BOQ template: {title}")
         else:
-            print(f"BOQ template already exists: {template_name}")
+            print(f"BOQ template already exists for: {template_data['template_name']} in category {template_data['category']}")
 
 def create_sample_vendors():
     """Create sample vendors for testing"""
