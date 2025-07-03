@@ -293,4 +293,38 @@ class ServiceRequest(Document):
 				now=True
 			)
 		except Exception as e:
-			frappe.log_error(f"Failed to send quotes notification: {str(e)}") 
+			frappe.log_error(f"Failed to send quotes notification: {str(e)}")
+
+
+# Whitelisted functions for web interface
+@frappe.whitelist()
+def generate_boq(request_id):
+	"""Generate BOQ for a service request - called from admin dashboard"""
+	try:
+		doc = frappe.get_doc("Service Request", request_id)
+		doc.check_permission("write")
+		
+		if not doc.boq_generated:
+			doc.generate_boq()
+			doc.save()
+		
+		return {"success": True, "message": "BOQ generated successfully"}
+	except Exception as e:
+		frappe.log_error(f"Error generating BOQ: {str(e)}")
+		return {"success": False, "message": str(e)}
+
+@frappe.whitelist()
+def send_boq_to_vendors(request_id):
+	"""Send BOQ to vendors - called from admin dashboard"""
+	try:
+		doc = frappe.get_doc("Service Request", request_id)
+		doc.check_permission("write")
+		
+		if doc.boq_generated:
+			doc.send_to_vendors()
+			doc.db_set('status', 'Sent to Vendors')
+		
+		return {"success": True, "message": "BOQ sent to vendors successfully"}
+	except Exception as e:
+		frappe.log_error(f"Error sending BOQ to vendors: {str(e)}")
+		return {"success": False, "message": str(e)} 

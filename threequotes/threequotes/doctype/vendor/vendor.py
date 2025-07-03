@@ -95,4 +95,33 @@ class Vendor(Document):
 			return True
 		except Exception as e:
 			frappe.log_error(f"Failed to send BOQ email to {self.vendor_name}: {str(e)}")
-			return False 
+			return False
+
+
+# Whitelisted functions for web interface
+@frappe.whitelist()
+def send_test_email(vendor_id):
+	"""Send test email to vendor - called from admin dashboard"""
+	try:
+		vendor = frappe.get_doc("Vendor", vendor_id)
+		vendor.check_permission("read")
+		
+		if not vendor.email:
+			return {"success": False, "message": "Vendor email not found"}
+		
+		frappe.sendmail(
+			recipients=[vendor.email],
+			subject="Test Email from 3kwotes",
+			message=f"""
+			<p>Dear {vendor.vendor_name},</p>
+			<p>This is a test email to verify your email configuration with 3kwotes.</p>
+			<p>If you receive this email, your email setup is working correctly.</p>
+			<p>Best regards,<br>3kwotes Team</p>
+			""",
+			now=True
+		)
+		
+		return {"success": True, "message": "Test email sent successfully"}
+	except Exception as e:
+		frappe.log_error(f"Error sending test email: {str(e)}")
+		return {"success": False, "message": str(e)} 
