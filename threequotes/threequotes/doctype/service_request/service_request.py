@@ -66,41 +66,38 @@ class ServiceRequest(Document):
 			self.status = "BOQ Generated"
 	
 	def process_boq_template(self, template_data):
-		"""Process BOQ template with variables"""
-		template_content = template_data.get("template_content", "")
-		# Simple Python format to substitute {chat_transcript} placeholder
-		rendered_template = template_content.format(chat_transcript=(self.chat_transcript or ''))
-		variables = template_data.get("variables", "{}")
-		
-		try:
-			# Parse variables if they exist
-			template_vars = json.loads(variables) if variables else {}
-			# Create BOQ content with customer details and rendered template
-			boq_content = f"""
-			<div style="border: 1px solid #ddd; padding: 20px; margin: 10px 0;">
-				<h3>Bill of Quantities (BOQ)</h3>
-				<p><strong>Service Request:</strong> {self.name}</p>
-				<p><strong>Customer:</strong> {self.customer_name}</p>
-				<p><strong>Email:</strong> {self.customer_email}</p>
-				<p><strong>Service Category:</strong> {self.service_category}</p>
-				<p><strong>Date:</strong> {self.created_date}</p>
-				<hr>
-				<div>
-					{rendered_template}
-				</div>
-				<hr>
-				<p><strong>Customer Requirements:</strong></p>
-				<div style="background: #f8f9fa; padding: 10px; border-radius: 5px;">
-					{self.chat_transcript or 'No specific requirements provided'}
-				</div>
-			</div>
-			"""
-			
-			return boq_content
-			
-		except Exception as e:
-			frappe.log_error(f"Error processing BOQ template: {str(e)}")
-			return self.generate_basic_boq()
+		"""Demo placeholder BOQ - well formatted for presentations"""
+		demo_html = f"""
+		<div style="border:1px solid #ddd; padding:20px; margin:10px 0;">
+			<h3>Bill of Quantities (BOQ) - Demo</h3>
+			<p><strong>Service Request:</strong> {self.name}</p>
+			<p><strong>Customer:</strong> {self.customer_name}</p>
+			<p><strong>Email:</strong> {self.customer_email}</p>
+			<p><strong>Category:</strong> {self.service_category}</p>
+			<hr/>
+			<table style="width:100%; border-collapse: collapse;">
+				<tr style="background: #f8f9fa;">
+					<th style="border:1px solid #ddd; padding:8px;">Item</th>
+					<th style="border:1px solid #ddd; padding:8px;">Qty</th>
+					<th style="border:1px solid #ddd; padding:8px;">Unit Cost</th>
+					<th style="border:1px solid #ddd; padding:8px;">Total</th>
+				</tr>
+				<tr>
+					<td style="border:1px solid #ddd; padding:8px;">Business Cards</td>
+					<td style="border:1px solid #ddd; padding:8px;">500</td>
+					<td style="border:1px solid #ddd; padding:8px;">₹5.00</td>
+					<td style="border:1px solid #ddd; padding:8px;">₹2,500.00</td>
+				</tr>
+				<tr>
+					<td style="border:1px solid #ddd; padding:8px;">Design & Layout</td>
+					<td style="border:1px solid #ddd; padding:8px;">1</td>
+					<td style="border:1px solid #ddd; padding:8px;">₹500.00</td>
+					<td style="border:1px solid #ddd; padding:8px;">₹500.00</td>
+				</tr>
+			</table>
+		</div>
+		"""
+		return demo_html
 	
 	def generate_basic_boq(self):
 		"""Generate basic BOQ when no template is available"""
