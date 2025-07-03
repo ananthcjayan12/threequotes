@@ -68,11 +68,8 @@ class ServiceRequest(Document):
 	def process_boq_template(self, template_data):
 		"""Process BOQ template with variables"""
 		template_content = template_data.get("template_content", "")
-		# Render template using Jinja to substitute variables
-		# Prepare context for rendering
-		ctx = { 'chat_transcript': self.chat_transcript or '' }
-		# Render the HTML snippet
-		rendered_template = frappe.render_template(template_content, ctx)
+		# Simple Python format to substitute {chat_transcript} placeholder
+		rendered_template = template_content.format(chat_transcript=(self.chat_transcript or ''))
 		variables = template_data.get("variables", "{}")
 		
 		try:
