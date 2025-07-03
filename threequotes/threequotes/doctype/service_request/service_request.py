@@ -68,18 +68,17 @@ class ServiceRequest(Document):
 	def process_boq_template(self, template_data):
 		"""Process BOQ template with variables"""
 		template_content = template_data.get("template_content", "")
-		# Simple markdown rendering: convert **bold** to <strong> and line breaks to <br/>
-		# Convert bold markers
-		template_content = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", template_content)
-		# Preserve line breaks
-		template_content = template_content.replace("\n", "<br/>")
+		# Render template using Jinja to substitute variables
+		# Prepare context for rendering
+		ctx = { 'chat_transcript': self.chat_transcript or '' }
+		# Render the HTML snippet
+		rendered_template = frappe.render_template(template_content, ctx)
 		variables = template_data.get("variables", "{}")
 		
 		try:
 			# Parse variables if they exist
 			template_vars = json.loads(variables) if variables else {}
-			
-			# Create BOQ content with customer details
+			# Create BOQ content with customer details and rendered template
 			boq_content = f"""
 			<div style="border: 1px solid #ddd; padding: 20px; margin: 10px 0;">
 				<h3>Bill of Quantities (BOQ)</h3>
@@ -90,7 +89,7 @@ class ServiceRequest(Document):
 				<p><strong>Date:</strong> {self.created_date}</p>
 				<hr>
 				<div>
-					{template_content}
+					{rendered_template}
 				</div>
 				<hr>
 				<p><strong>Customer Requirements:</strong></p>
