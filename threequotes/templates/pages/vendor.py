@@ -5,19 +5,10 @@ from datetime import datetime, timedelta
 def get_context(context):
 	"""Get context data for vendor portal page"""
 	
-	# Get current user
-	if frappe.session.user and frappe.session.user != "Guest":
-		try:
-			user_doc = frappe.get_doc("User", frappe.session.user)
-			context.user = {
-				'full_name': user_doc.full_name or user_doc.email,
-				'email': user_doc.email
-			}
-		except:
-			context.user = {
-				'full_name': frappe.session.user,
-				'email': frappe.session.user
-			}
+	# Get current user - following Frappe's pattern
+	if frappe.session.user != "Guest":
+		context.current_user = frappe.get_doc("User", frappe.session.user)
+		context.user = context.current_user  # For template compatibility
 		
 		# Try to find vendor record for current user
 		vendor = get_vendor_by_user(frappe.session.user)
