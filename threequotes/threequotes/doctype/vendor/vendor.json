@@ -1,42 +1,53 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:category_name",
- "creation": "2025-07-03 15:47:25.898686",
+ "autoname": "field:vendor_name",
+ "creation": "2025-07-03 16:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "category_name",
-  "description",
+  "vendor_name",
+  "email",
+  "phone",
   "section_break_1",
-  "ai_prompt_template",
+  "service_categories",
   "column_break_1",
   "status",
-  "icon"
+  "rating",
+  "response_time"
  ],
  "fields": [
   {
-   "fieldname": "category_name",
+   "fieldname": "vendor_name",
    "fieldtype": "Data",
-   "label": "Category Name",
+   "label": "Vendor Name",
    "reqd": 1,
    "unique": 1
   },
   {
-   "fieldname": "description",
-   "fieldtype": "Text",
-   "label": "Description"
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "reqd": 1,
+   "options": "Email"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone",
+   "options": "Phone"
   },
   {
    "fieldname": "section_break_1",
    "fieldtype": "Section Break",
-   "label": "Configuration"
+   "label": "Services & Settings"
   },
   {
-   "fieldname": "ai_prompt_template",
-   "fieldtype": "Long Text",
-   "label": "AI Prompt Template",
-   "description": "Category-specific questions to ask customers"
+   "fieldname": "service_categories",
+   "fieldtype": "Table",
+   "label": "Service Categories",
+   "options": "Vendor Service Category",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_1",
@@ -51,19 +62,26 @@
    "reqd": 1
   },
   {
-   "fieldname": "icon",
-   "fieldtype": "Data",
-   "label": "Icon",
-   "description": "CSS class for icon (e.g., fa fa-print)"
+   "fieldname": "rating",
+   "fieldtype": "Rating",
+   "label": "Rating",
+   "max_rating": 5
+  },
+  {
+   "fieldname": "response_time",
+   "fieldtype": "Int",
+   "label": "Response Time (Hours)",
+   "default": 24,
+   "description": "Expected response time in hours"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-03 15:48:10.208289",
+ "modified": "2025-07-03 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "Threequotes",
- "name": "Service Category",
+ "name": "Vendor",
  "owner": "Administrator",
  "permissions": [
   {
@@ -83,6 +101,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "category_name",
+ "title_field": "vendor_name",
  "track_changes": 1
-}
+} 
