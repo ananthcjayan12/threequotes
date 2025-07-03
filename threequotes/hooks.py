@@ -242,3 +242,32 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+# Web pages - these will be accessible as URLs
+website_route_rules = [
+	{"from_route": "/admin", "to_route": "admin"},
+	{"from_route": "/vendor", "to_route": "vendor"},
+	{"from_route": "/request", "to_route": "request"},
+]
+
+# Include CSS and JS files for web pages
+web_include_css = [
+	"assets/threequotes/css/threequotes.css"
+]
+
+web_include_js = [
+	"assets/threequotes/js/threequotes.js"
+]
+
+# Website settings
+website_generators = []
+
+# Email settings
+email_brand_image = ""
+default_mail_footer = """
+<div style="text-align: center; margin-top: 20px; padding: 20px; border-top: 1px solid #eee;">
+	<p style="margin: 0; color: #666; font-size: 12px;">
+		This email was sent by 3kwotes - Get quotes from verified vendors
+	</p>
+</div>
+"""
+

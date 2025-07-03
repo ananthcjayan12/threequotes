@@ -1,0 +1,259 @@
+{% extends "templates/web.html" %}
+
+{% block title %}3kwotes - Get Quotes from Verified Vendors{% endblock %}
+
+{% block head_include %}
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.cta-button {
+    background: #ff6b6b;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    border-radius: 50px;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+    background: #ff5252;
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+}
+
+.service-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    margin-bottom: 30px;
+    border: none;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+}
+
+.service-icon {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 20px;
+}
+
+.service-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.service-description {
+    color: #666;
+    line-height: 1.6;
+}
+
+.features-section {
+    padding: 80px 0;
+    background: #f8f9fa;
+}
+
+.feature-item {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.stats-section {
+    background: #2c3e50;
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+}
+
+.stat-item {
+    margin-bottom: 30px;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+</style>
+{% endblock %}
+
+{% block page_content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">Get 3 Quotes Instantly</h1>
+        <p class="hero-subtitle">Connect with verified vendors and get quotes for your business needs in minutes</p>
+        <a href="/request" class="cta-button">Get Quotes Now</a>
+    </div>
+</section>
+
+<!-- Service Categories Section -->
+<section class="container" style="padding: 80px 0;">
+    <div class="text-center mb-5">
+        <h2 class="display-4 mb-3">Our Services</h2>
+        <p class="lead">Choose from our wide range of business services</p>
+    </div>
+    
+    <div class="row">
+        {% for category in service_categories %}
+        <div class="col-md-4">
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="{{ category.icon or 'fa fa-briefcase' }}"></i>
+                </div>
+                <h3 class="service-title">{{ category.category_name }}</h3>
+                <p class="service-description">{{ category.description or 'Professional services for your business needs' }}</p>
+                <a href="/request?category={{ category.name }}" class="btn btn-outline-primary">Get Quotes</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-4 mb-3">Why Choose 3kwotes?</h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fa fa-clock"></i>
+                    </div>
+                    <h4>Fast Response</h4>
+                    <p>Get quotes from verified vendors within 24 hours</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fa fa-shield"></i>
+                    </div>
+                    <h4>Verified Vendors</h4>
+                    <p>All our vendors are pre-screened and verified for quality</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fa fa-money"></i>
+                    </div>
+                    <h4>Best Prices</h4>
+                    <p>Compare quotes and choose the best price for your needs</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.vendors or '50+' }}</span>
+                    <span class="stat-label">Verified Vendors</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.requests or '500+' }}</span>
+                    <span class="stat-label">Requests Processed</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.categories or '10+' }}</span>
+                    <span class="stat-label">Service Categories</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">24hrs</span>
+                    <span class="stat-label">Average Response</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="container text-center" style="padding: 80px 0;">
+    <h2 class="display-4 mb-3">Ready to Get Started?</h2>
+    <p class="lead mb-4">Join thousands of businesses who trust 3kwotes for their service needs</p>
+    <a href="/request" class="cta-button">Get Your Quotes Now</a>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+$(document).ready(function() {
+    // Add smooth scrolling for anchor links
+    $('a[href^="#"]').on('click', function(event) {
+        var target = $(this.getAttribute('href'));
+        if( target.length ) {
+            event.preventDefault();
+            $('html, body').stop().animate({
+                scrollTop: target.offset().top
+            }, 1000);
+        }
+    });
+
+    // Add animation on scroll
+    $(window).scroll(function() {
+        $('.service-card').each(function() {
+            var elementTop = $(this).offset().top;
+            var elementBottom = elementTop + $(this).outerHeight();
+            var viewportTop = $(window).scrollTop();
+            var viewportBottom = viewportTop + $(window).height();
+            
+            if (elementBottom > viewportTop && elementTop < viewportBottom) {
+                $(this).addClass('animate__fadeInUp');
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 
