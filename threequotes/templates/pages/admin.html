@@ -401,22 +401,146 @@
 
 {% block style %}
 <style>
-    .badge {
-        color: white;
-        font-size: 0.875rem;
-        font-weight: 500;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-    }
-    
-    .btn-sm {
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-    }
-    
-    .rating {
-        color: #ffc107;
-    }
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 6rem 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+/* Layout */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.section {
+    padding: 4rem 0;
+}
+
+/* Grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Cards */
+.card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* Tables */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+
+.table th,
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.table th {
+    background-color: var(--gray-100);
+    font-weight: 600;
+    text-align: left;
+}
+
+/* Badges */
+.badge {
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+/* Rating */
+.rating {
+    color: #ffc107;
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.mb-4 { margin-bottom: 1.5rem; }
+.text-primary { color: var(--primary); }
+.text-muted { color: var(--gray-600); }
+.d-flex { display: flex; }
+.align-items-center { align-items: center; }
+.justify-content-between { justify-content: space-between; }
+.gap-2 { gap: 0.5rem; }
 </style>
 {% endblock %}
 
