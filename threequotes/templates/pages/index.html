@@ -4,8 +4,19 @@
 
 {% block head_include %}
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+:root {
+    --color-primary: #4CAF50;
+    --color-primary-light: #E8F5E9;
+    --color-secondary: #f8f9fa;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+}
+/* Override colors and styles */
 .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, #81C784 100%);
     color: white;
     padding: 80px 0;
     text-align: center;
@@ -24,7 +35,7 @@
 }
 
 .cta-button {
-    background: #ff6b6b;
+    background: var(--color-primary);
     border: none;
     padding: 15px 40px;
     font-size: 1.1rem;
@@ -36,7 +47,7 @@
 }
 
 .cta-button:hover {
-    background: #ff5252;
+    background: #43A047;
     transform: translateY(-2px);
     color: white;
     text-decoration: none;
@@ -59,7 +70,7 @@
 
 .service-icon {
     font-size: 3rem;
-    color: #667eea;
+    color: var(--color-primary);
     margin-bottom: 20px;
 }
 
@@ -87,7 +98,7 @@
 
 .feature-icon {
     font-size: 2.5rem;
-    color: #667eea;
+    color: var(--color-primary);
     margin-bottom: 15px;
 }
 
@@ -112,82 +123,132 @@
     font-size: 1.1rem;
     opacity: 0.8;
 }
+
+.btn-outline-primary {
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    border-radius: 25px;
+    padding: 10px 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
 </style>
 {% endblock %}
 
 {% block page_content %}
-<div class="hero">
+<!-- Hero Section -->
+<section class="hero-section">
     <div class="container">
-        <h1>Get Multiple Quotes<br>for Your Business Needs</h1>
-        <p>Connect with verified vendors and get competitive quotes in minutes</p>
-        <a href="/request" class="btn btn-outline">Get Started</a>
+        <h1 class="hero-title">Get 3 Quotes Instantly</h1>
+        <p class="hero-subtitle">Connect with verified vendors and get quotes for your business needs in minutes</p>
+        <a href="/request" class="cta-button">Get Quotes Now</a>
     </div>
-</div>
+</section>
 
-<section class="section">
+<!-- Service Categories Section -->
+<section class="container" style="padding: 80px 0;">
+    <div class="text-center mb-5">
+        <h2 class="display-4 mb-3">Our Services</h2>
+        <p class="lead">Choose from our wide range of business services</p>
+    </div>
+    
+    <div class="row">
+        {% for category in service_categories %}
+        <div class="col-md-4">
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="{{ category.icon or 'fa fa-briefcase' }}"></i>
+                </div>
+                <h3 class="service-title">{{ category.category_name }}</h3>
+                <p class="service-description">{{ category.description or 'Professional services for your business needs' }}</p>
+                <a href="/request?category={{ category.name }}" class="btn btn-outline-primary">Get Quotes</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
     <div class="container">
-        <h2 class="text-center mb-4">How It Works</h2>
-        <div class="grid">
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-file-text fa-3x"></i>
+        <div class="text-center mb-5">
+            <h2 class="display-4 mb-3">Why Choose 3kwotes?</h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fa fa-clock"></i>
+                    </div>
+                    <h4>Fast Response</h4>
+                    <p>Get quotes from verified vendors within 24 hours</p>
                 </div>
-                <h3>1. Submit Request</h3>
-                <p>Describe your requirements and select the service category you need quotes for.</p>
             </div>
-            
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-users fa-3x"></i>
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fa fa-shield"></i>
+                    </div>
+                    <h4>Verified Vendors</h4>
+                    <p>All our vendors are pre-screened and verified for quality</p>
                 </div>
-                <h3>2. Get Matched</h3>
-                <p>We'll match you with verified vendors who specialize in your required service.</p>
             </div>
-            
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-check-circle fa-3x"></i>
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fa fa-money"></i>
+                    </div>
+                    <h4>Best Prices</h4>
+                    <p>Compare quotes and choose the best price for your needs</p>
                 </div>
-                <h3>3. Compare & Choose</h3>
-                <p>Review multiple quotes and select the best vendor for your needs.</p>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section" style="background-color: white;">
+<!-- Stats Section -->
+<section class="stats-section">
     <div class="container">
-        <h2 class="text-center mb-4">Popular Service Categories</h2>
-        <div class="grid">
-            {% for category in service_categories %}
-            <div class="card">
-                <h3>{{ category.category_name }}</h3>
-                <p>{{ category.description }}</p>
-                <a href="/request?category={{ category.name }}" class="btn btn-primary">Get Quotes</a>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.vendors or '50+' }}</span>
+                    <span class="stat-label">Verified Vendors</span>
+                </div>
             </div>
-            {% endfor %}
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.requests or '500+' }}</span>
+                    <span class="stat-label">Requests Processed</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ stats.categories or '10+' }}</span>
+                    <span class="stat-label">Service Categories</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">24hrs</span>
+                    <span class="stat-label">Average Response</span>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="section">
-    <div class="container">
-        <div class="card" style="text-align: center;">
-            <h2>Ready to Get Started?</h2>
-            <p class="mb-4">Join thousands of businesses who trust us for their service needs</p>
-            <div>
-                <a href="/request" class="btn btn-primary">Submit Request</a>
-                <a href="/login" class="btn btn-outline" style="margin-left: 1rem;">Vendor Login</a>
-            </div>
-        </div>
-    </div>
+<!-- CTA Section -->
+<section class="container text-center" style="padding: 80px 0;">
+    <h2 class="display-4 mb-3">Ready to Get Started?</h2>
+    <p class="lead mb-4">Join thousands of businesses who trust 3kwotes for their service needs</p>
+    <a href="/request" class="cta-button">Get Your Quotes Now</a>
 </section>
-{% endblock %}
-
-{% block style %}
-<style>
-    {% include "templates/styles/index.css" %}
-</style>
 {% endblock %}
 
 {% block script %}

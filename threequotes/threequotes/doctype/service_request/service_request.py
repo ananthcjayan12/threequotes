@@ -75,17 +75,26 @@ class ServiceRequest(Document):
 			<p><strong>Email:</strong> {self.customer_email}</p>
 			<p><strong>Category:</strong> {self.service_category}</p>
 			<hr/>
-			<h4>Quote Summary</h4>
-			<p><strong>Total Amount:</strong> ₹2,800</p>
-			<h4>Quote Details</h4>
-			<ul>
-				<li>500 premium business cards</li>
-				<li>Full color printing both sides</li>
-				<li>Matte lamination finish</li>
-				<li>Logo design included</li>
-				<li>5 business days delivery</li>
-				<li>1 year quality guarantee</li>
-			</ul>
+			<table style="width:100%; border-collapse: collapse;">
+				<tr style="background: #f8f9fa;">
+					<th style="border:1px solid #ddd; padding:8px;">Item</th>
+					<th style="border:1px solid #ddd; padding:8px;">Qty</th>
+					<th style="border:1px solid #ddd; padding:8px;">Unit Cost</th>
+					<th style="border:1px solid #ddd; padding:8px;">Total</th>
+				</tr>
+				<tr>
+					<td style="border:1px solid #ddd; padding:8px;">Business Cards</td>
+					<td style="border:1px solid #ddd; padding:8px;">500</td>
+					<td style="border:1px solid #ddd; padding:8px;">₹5.00</td>
+					<td style="border:1px solid #ddd; padding:8px;">₹2,500.00</td>
+				</tr>
+				<tr>
+					<td style="border:1px solid #ddd; padding:8px;">Design & Layout</td>
+					<td style="border:1px solid #ddd; padding:8px;">1</td>
+					<td style="border:1px solid #ddd; padding:8px;">₹500.00</td>
+					<td style="border:1px solid #ddd; padding:8px;">₹500.00</td>
+				</tr>
+			</table>
 		</div>
 		"""
 		return demo_html

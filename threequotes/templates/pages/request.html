@@ -4,8 +4,19 @@
 
 {% block head_include %}
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+:root {
+    --color-primary: #4CAF50;
+    --color-primary-light: #E8F5E9;
+    --color-secondary: #f8f9fa;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+}
+/* Override colors and accents */
 .request-container {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
     min-height: 100vh;
     padding: 40px 0;
 }
@@ -36,7 +47,7 @@
 }
 
 .progress-step.active {
-    background: #667eea;
+    background: var(--color-primary);
     color: white;
 }
 
@@ -59,12 +70,12 @@
 }
 
 .form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
 }
 
 .btn-primary {
-    background: #667eea;
+    background: var(--color-primary);
     border: none;
     border-radius: 25px;
     padding: 12px 30px;
@@ -73,7 +84,7 @@
 }
 
 .btn-primary:hover {
-    background: #5a6fd8;
+    background: #43A047;
     transform: translateY(-2px);
 }
 
@@ -95,12 +106,12 @@
 }
 
 .service-option:hover {
-    border-color: #667eea;
+    border-color: var(--color-primary);
     transform: translateY(-2px);
 }
 
 .service-option.selected {
-    border-color: #667eea;
+    border-color: var(--color-primary);
     background: #f8f9ff;
 }
 
@@ -137,225 +148,265 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="section" style="background-color: white;">
+<div class="request-container">
     <div class="container">
-        <div class="card" style="max-width: 800px; margin: 0 auto;">
-            <h1 class="text-center mb-4">Submit Service Request</h1>
-            
-            <form id="serviceRequestForm">
-                <div class="mb-4">
-                    <label for="service_category" class="form-label">Service Category</label>
-                    <select name="service_category" id="service_category" class="form-control" required>
-                        <option value="">Select a category</option>
-                        {% for category in get_service_categories() %}
-                        <option value="{{ category.name }}">{{ category.category_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="request-card">
+                    <!-- Progress Indicator -->
+                    <div class="progress-container text-center">
+                        <span class="progress-step active" id="step-1">1</span>
+                        <span class="progress-step" id="step-2">2</span>
+                        <span class="progress-step" id="step-3">3</span>
+                        <div class="mt-2">
+                            <small class="text-muted">Step <span id="current-step">1</span> of 3</small>
+                        </div>
+                    </div>
 
-                <div class="mb-4">
-                    <label for="title" class="form-label">Request Title</label>
-                    <input type="text" id="title" name="title" class="form-control" 
-                           placeholder="e.g., Need Business Cards Design" required>
-                </div>
+                    <h2 class="text-center mb-4">Submit Your Service Request</h2>
 
-                <div class="mb-4">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea id="description" name="description" class="form-control" rows="5" 
-                            placeholder="Please describe your requirements in detail..." required></textarea>
-                </div>
+                    <!-- Step 1: Service Category Selection -->
+                    <div id="step-category" class="step-content">
+                        <h4>Select Service Category</h4>
+                        <div class="service-selector">
+                            {% for category in service_categories %}
+                            <div class="service-option" data-category="{{ category.name }}" data-name="{{ category.category_name }}">
+                                <div class="icon">
+                                    <i class="{{ category.icon or 'fa fa-briefcase' }}"></i>
+                                </div>
+                                <h5>{{ category.category_name }}</h5>
+                                <p class="small text-muted">{{ category.description[:50] }}...</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="button" class="btn btn-primary" id="next-to-details" disabled>
+                                Next: Your Details <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
 
-                <div class="mb-4">
-                    <label for="budget" class="form-label">Budget Range (Optional)</label>
-                    <select name="budget" id="budget" class="form-control">
-                        <option value="">Select budget range</option>
-                        <option value="0-5000">₹0 - ₹5,000</option>
-                        <option value="5000-10000">₹5,000 - ₹10,000</option>
-                        <option value="10000-25000">₹10,000 - ₹25,000</option>
-                        <option value="25000-50000">₹25,000 - ₹50,000</option>
-                        <option value="50000+">₹50,000+</option>
-                    </select>
-                </div>
+                    <!-- Step 2: Customer Details -->
+                    <div id="step-details" class="step-content" style="display: none;">
+                        <h4>Your Contact Information</h4>
+                        <form id="customer-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="customer_name">Full Name *</label>
+                                        <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="customer_email">Email Address *</label>
+                                        <input type="email" class="form-control" id="customer_email" name="customer_email" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="customer_phone">Phone Number</label>
+                                <input type="tel" class="form-control" id="customer_phone" name="customer_phone">
+                            </div>
+                        </form>
+                        <div class="text-center mt-4">
+                            <button type="button" class="btn btn-outline-secondary me-3" id="back-to-category">
+                                <i class="fa fa-arrow-left"></i> Back
+                            </button>
+                            <button type="button" class="btn btn-primary" id="next-to-requirements">
+                                Next: Requirements <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
 
-                <div class="mb-4">
-                    <label for="timeline" class="form-label">Required Timeline (Optional)</label>
-                    <select name="timeline" id="timeline" class="form-control">
-                        <option value="">Select timeline</option>
-                        <option value="urgent">Urgent (Within 24 hours)</option>
-                        <option value="1-3days">1-3 days</option>
-                        <option value="1week">Within a week</option>
-                        <option value="2weeks">Within 2 weeks</option>
-                        <option value="flexible">Flexible</option>
-                    </select>
-                </div>
+                    <!-- Step 3: Requirements -->
+                    <div id="step-requirements" class="step-content" style="display: none;">
+                        <h4>Tell Us Your Requirements</h4>
+                        <div class="prompt-questions" id="category-prompts" style="display: none;">
+                            <h6>Suggested Questions:</h6>
+                            <p id="prompt-text"></p>
+                        </div>
+                        <div class="chat-container">
+                            <label for="chat_transcript">Describe your requirements in detail:</label>
+                            <textarea class="form-control" id="chat_transcript" name="chat_transcript" rows="6" 
+                                placeholder="Please provide as much detail as possible about what you need. For example: quantity, specifications, timeline, budget range, etc."></textarea>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="button" class="btn btn-outline-secondary me-3" id="back-to-details">
+                                <i class="fa fa-arrow-left"></i> Back
+                            </button>
+                            <button type="button" class="btn btn-primary" id="submit-request">
+                                Submit Request <i class="fa fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
 
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                    <!-- Success Message -->
+                    <div id="success-message" class="success-message" style="display: none;">
+                        <h4><i class="fa fa-check-circle"></i> Request Submitted Successfully!</h4>
+                        <p>Your service request has been submitted. We'll send your requirements to our verified vendors and you'll receive quotes within 24-48 hours.</p>
+                        <p><strong>Request ID:</strong> <span id="request-id"></span></p>
+                        <div class="mt-3">
+                            <a href="/" class="btn btn-outline-primary">Submit Another Request</a>
+                        </div>
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
-
-<section class="section">
-    <div class="container">
-        <h2 class="text-center mb-4">What Happens Next?</h2>
-        <div class="grid">
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-check fa-2x"></i>
-                </div>
-                <h3>Review</h3>
-                <p>We'll review your request and match you with suitable vendors</p>
-            </div>
-            
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-paper-plane fa-2x"></i>
-                </div>
-                <h3>Vendor Notification</h3>
-                <p>Selected vendors will be notified to submit their quotes</p>
-            </div>
-            
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-envelope fa-2x"></i>
-                </div>
-                <h3>Get Quotes</h3>
-                <p>You'll receive quotes within 24 hours via email</p>
-            </div>
-        </div>
-    </div>
-</section>
-{% endblock %}
-
-{% block style %}
-<style>
-/* Layout */
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-.section {
-    padding: 4rem 0;
-}
-
-/* Grid */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-/* Cards */
-.card {
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    transition: transform 0.2s ease-in-out;
-}
-
-.card:hover {
-    transform: translateY(-4px);
-}
-
-/* Forms */
-.form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--gray-700);
-}
-
-.form-control {
-    display: block;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    color: var(--gray-900);
-    background-color: white;
-    border: 1px solid var(--gray-300);
-    border-radius: 0.5rem;
-    transition: border-color 0.2s ease-in-out;
-}
-
-.form-control:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.25);
-}
-
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-}
-
-/* Buttons */
-.btn {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-    border: none;
-}
-
-.btn-primary {
-    background-color: var(--primary);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-dark);
-}
-
-/* Utilities */
-.text-center { text-align: center; }
-.mb-4 { margin-bottom: 1.5rem; }
-.text-primary { color: var(--primary); }
-</style>
 {% endblock %}
 
 {% block script %}
 <script>
-    frappe.ready(function() {
-        $('#serviceRequestForm').on('submit', function(e) {
-            e.preventDefault();
-            
-            frappe.call({
-                method: 'threequotes.templates.pages.request.create_service_request',
-                args: {
-                    service_category: $('#service_category').val(),
-                    title: $('#title').val(),
-                    description: $('#description').val(),
-                    budget: $('#budget').val(),
-                    timeline: $('#timeline').val()
-                },
-                callback: function(r) {
-                    if(!r.exc) {
-                        frappe.show_alert({
-                            message: 'Request submitted successfully',
-                            indicator: 'green'
-                        });
-                        setTimeout(function() {
-                            window.location.href = '/me';
-                        }, 2000);
-                    }
+$(document).ready(function() {
+    let selectedCategory = null;
+    let selectedCategoryName = null;
+    let currentStep = 1;
+
+    // Get category from URL parameter if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    if (categoryParam) {
+        $('.service-option[data-category="' + categoryParam + '"]').click();
+    }
+
+    // Service category selection
+    $('.service-option').click(function() {
+        $('.service-option').removeClass('selected');
+        $(this).addClass('selected');
+        selectedCategory = $(this).data('category');
+        selectedCategoryName = $(this).data('name');
+        $('#next-to-details').prop('disabled', false);
+    });
+
+    // Navigation between steps
+    $('#next-to-details').click(function() {
+        if (selectedCategory) {
+            showStep(2);
+        }
+    });
+
+    $('#back-to-category').click(function() {
+        showStep(1);
+    });
+
+    $('#next-to-requirements').click(function() {
+        if (validateCustomerForm()) {
+            showStep(3);
+            loadCategoryPrompts();
+        }
+    });
+
+    $('#back-to-details').click(function() {
+        showStep(2);
+    });
+
+    function showStep(step) {
+        // Hide all steps
+        $('.step-content').hide();
+        
+        // Update progress indicators
+        $('.progress-step').removeClass('active completed');
+        for (let i = 1; i < step; i++) {
+            $('#step-' + i).addClass('completed');
+        }
+        $('#step-' + step).addClass('active');
+        $('#current-step').text(step);
+        
+        // Show current step
+        if (step === 1) $('#step-category').show();
+        if (step === 2) $('#step-details').show();
+        if (step === 3) $('#step-requirements').show();
+        
+        currentStep = step;
+    }
+
+    function validateCustomerForm() {
+        const name = $('#customer_name').val().trim();
+        const email = $('#customer_email').val().trim();
+        
+        if (!name) {
+            alert('Please enter your full name');
+            $('#customer_name').focus();
+            return false;
+        }
+        
+        if (!email || !isValidEmail(email)) {
+            alert('Please enter a valid email address');
+            $('#customer_email').focus();
+            return false;
+        }
+        
+        return true;
+    }
+
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    function loadCategoryPrompts() {
+        // This would normally fetch from the Service Category doctype
+        // For now, we'll use the selected category to show relevant prompts
+        const prompts = {
+            'Printing': 'What type of printing do you need? How many copies? What size and format? Any specific design requirements?',
+            'Accounting': 'What accounting services do you need? Monthly/yearly? Number of transactions? Business type?',
+            'Digital Marketing': 'What marketing services do you need? Social media? SEO? PPC advertising? Target audience?'
+        };
+        
+        const prompt = prompts[selectedCategoryName] || 'Please describe your requirements in detail.';
+        $('#prompt-text').text(prompt);
+        $('#category-prompts').show();
+    }
+
+    // Submit request
+    $('#submit-request').click(function() {
+        if (!$('#chat_transcript').val().trim()) {
+            alert('Please describe your requirements');
+            $('#chat_transcript').focus();
+            return;
+        }
+
+        const requestData = {
+            doctype: 'Service Request',
+            customer_name: $('#customer_name').val(),
+            customer_email: $('#customer_email').val(),
+            customer_phone: $('#customer_phone').val(),
+            service_category: selectedCategory,
+            chat_transcript: $('#chat_transcript').val()
+        };
+
+        // Show loading state
+        $('#submit-request').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Submitting...');
+
+        // Submit to Frappe
+        frappe.call({
+            method: 'frappe.client.insert',
+            args: {
+                doc: requestData
+            },
+            callback: function(response) {
+                if (response.message) {
+                    showSuccess(response.message.name);
+                } else {
+                    alert('Error submitting request. Please try again.');
+                    $('#submit-request').prop('disabled', false).html('Submit Request <i class="fa fa-paper-plane"></i>');
                 }
-            });
+            },
+            error: function() {
+                alert('Error submitting request. Please try again.');
+                $('#submit-request').prop('disabled', false).html('Submit Request <i class="fa fa-paper-plane"></i>');
+            }
         });
     });
+
+    function showSuccess(requestId) {
+        $('.step-content').hide();
+        $('.progress-container').hide();
+        $('#request-id').text(requestId);
+        $('#success-message').show();
+    }
+});
 </script>
 {% endblock %} 

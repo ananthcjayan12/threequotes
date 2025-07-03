@@ -4,6 +4,16 @@
 
 {% block head_include %}
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+:root {
+    --color-primary: #4CAF50;
+    --color-primary-light: #E8F5E9;
+    --color-secondary: #f8f9fa;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+}
 .vendor-container {
     background: #f8f9fa;
     min-height: 100vh;
@@ -11,7 +21,7 @@
 }
 
 .vendor-header {
-    background: white;
+    background: linear-gradient(135deg, var(--color-primary) 0%, #81C784 100%);
     border-radius: 15px;
     padding: 30px;
     margin-bottom: 30px;
@@ -58,7 +68,7 @@
     border-radius: 10px;
     padding: 20px;
     margin: 15px 0;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid var(--color-primary);
 }
 
 .quote-form {
@@ -86,7 +96,7 @@
 .stat-number {
     font-size: 2rem;
     font-weight: bold;
-    color: #667eea;
+    color: var(--color-primary);
 }
 
 .stat-label {
@@ -103,7 +113,7 @@
 }
 
 .btn-quote {
-    background: #28a745;
+    background: var(--color-primary);
     border: none;
     color: white;
     padding: 8px 20px;
@@ -113,7 +123,7 @@
 }
 
 .btn-quote:hover {
-    background: #218838;
+    background: #43A047;
     color: white;
 }
 
@@ -132,244 +142,266 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="hero" style="padding: 4rem 0;">
+<div class="vendor-container">
     <div class="container">
-        <h1>Vendor Dashboard</h1>
-        <p>Manage your quotes and service requests</p>
+        {% if user %}
+        <!-- Logged in vendor view -->
+        <div class="vendor-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2>Welcome, {% if vendor %}{{ vendor.vendor_name }}{% elif current_user %}{{ current_user.full_name or current_user.first_name or current_user.email }}{% else %}Vendor{% endif %}!</h2>
+                    <p class="text-muted mb-0">Manage your BOQ assignments and submit quotes</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/logout" class="btn btn-outline-secondary">
+                        <i class="fa fa-sign-out"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vendor Statistics -->
+        <div class="vendor-stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.pending_boqs or 0 }}</div>
+                <div class="stat-label">Pending BOQs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.submitted_quotes or 0 }}</div>
+                <div class="stat-label">Quotes Submitted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.response_rate or 0 }}%</div>
+                <div class="stat-label">Response Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ vendor.rating or 0 }}/5</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+        </div>
+
+        <!-- BOQ Assignments -->
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-4">BOQ Assignments</h4>
+                
+                {% if boq_assignments %}
+                {% for assignment in boq_assignments %}
+                <div class="boq-card urgency-{{ assignment.urgency|lower }}">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="mb-1">{{ assignment.service_category_name }}</h5>
+                                <span class="status-badge status-{{ assignment.status|lower|replace(' ', '-') }}">
+                                    {{ assignment.status }}
+                                </span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Customer:</strong> {{ assignment.customer_name }}<br>
+                                <strong>Request ID:</strong> {{ assignment.request_id }}<br>
+                                <strong>Submitted:</strong> {{ assignment.created_date }}<br>
+                                <strong>Deadline:</strong> {{ assignment.deadline or 'Within 48 hours' }}
+                            </div>
+                            
+                            <div class="boq-details">
+                                <h6>Requirements:</h6>
+                                <p>{{ assignment.chat_transcript[:200] }}{% if assignment.chat_transcript|length > 200 %}...{% endif %}</p>
+                                
+                                {% if assignment.boq_generated %}
+                                <h6>Generated BOQ:</h6>
+                                <div class="boq-content">
+                                    {{ assignment.boq_generated|safe }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            {% if assignment.status == 'Pending' %}
+                            <div class="quote-form">
+                                <h6>Submit Your Quote</h6>
+                                <form class="quote-submission-form" data-request="{{ assignment.request_id }}">
+                                    <div class="form-group mb-3">
+                                        <label for="quote_amount_{{ assignment.request_id }}">Quote Amount (₹)</label>
+                                        <input type="number" class="form-control" id="quote_amount_{{ assignment.request_id }}" 
+                                               name="quote_amount" required step="0.01" min="0">
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="quote_details_{{ assignment.request_id }}">Quote Details</label>
+                                        <textarea class="form-control" id="quote_details_{{ assignment.request_id }}" 
+                                                  name="quote_details" rows="4" 
+                                                  placeholder="Provide detailed breakdown, timeline, terms, etc."></textarea>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="quote_attachment_{{ assignment.request_id }}">Attachment (Optional)</label>
+                                        <input type="file" class="form-control" id="quote_attachment_{{ assignment.request_id }}" 
+                                               name="quote_attachment" accept=".pdf,.doc,.docx,.xls,.xlsx">
+                                    </div>
+                                    <button type="submit" class="btn btn-quote w-100">
+                                        <i class="fa fa-paper-plane"></i> Submit Quote
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <div class="text-center p-3">
+                                <i class="fa fa-check-circle text-success fa-2x mb-2"></i>
+                                <p class="text-muted">Quote submitted successfully!</p>
+                                {% if assignment.quote_amount %}
+                                <p><strong>Amount:</strong> ₹{{ assignment.quote_amount }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="boq-card text-center">
+                    <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
+                    <h5>No BOQ assignments yet</h5>
+                    <p class="text-muted">You'll receive BOQ assignments based on your service categories</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Login prompt for non-logged-in users -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="login-prompt">
+                    <i class="fa fa-user-circle fa-4x text-muted mb-4"></i>
+                    <h3>Vendor Portal Access</h3>
+                    <p class="lead mb-4">Login to access your BOQ assignments and submit quotes</p>
+                    <div class="d-grid gap-2">
+                        <a href="/login?redirect-to=/vendor" class="btn btn-primary btn-lg">
+                            <i class="fa fa-sign-in"></i> Login
+                        </a>
+                        <a href="/signup" class="btn btn-outline-secondary">
+                            <i class="fa fa-user-plus"></i> Register as Vendor
+                        </a>
+                    </div>
+                    <div class="mt-4">
+                        <small class="text-muted">
+                            New vendor? <a href="mailto:admin@3kwotes.com">Contact us</a> to get started.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
-
-<div class="section" style="background-color: white;">
-    <div class="container">
-        <div class="grid">
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-file-text fa-3x"></i>
-                </div>
-                <h3>New Requests</h3>
-                <p class="mb-4">{{ stats.new_requests or 0 }} new service requests</p>
-                <a href="#new-requests" class="btn btn-primary">View Requests</a>
-            </div>
-
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-clock fa-3x"></i>
-                </div>
-                <h3>Pending Quotes</h3>
-                <p class="mb-4">{{ stats.pending_quotes or 0 }} quotes awaiting response</p>
-                <a href="#pending-quotes" class="btn btn-primary">View Quotes</a>
-            </div>
-
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-check-circle fa-3x"></i>
-                </div>
-                <h3>Completed</h3>
-                <p class="mb-4">{{ stats.completed or 0 }} completed requests</p>
-                <a href="#completed" class="btn btn-primary">View History</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<section class="section">
-    <div class="container">
-        <div id="new-requests">
-            <h2 class="mb-4">New Service Requests</h2>
-            {% if new_requests %}
-            <div class="grid">
-                {% for request in new_requests %}
-                <div class="card">
-                    <h3>{{ request.title }}</h3>
-                    <p class="text-primary mb-2">{{ request.service_category }}</p>
-                    <p class="mb-4">{{ request.description[:200] }}...</p>
-                    <div class="mb-4">
-                        <span class="badge" style="background: var(--primary-light); padding: 0.5rem; border-radius: 0.5rem;">
-                            {{ request.budget or 'Budget not specified' }}
-                        </span>
-                        <span class="badge" style="background: var(--accent); padding: 0.5rem; border-radius: 0.5rem; margin-left: 0.5rem;">
-                            {{ request.timeline or 'Timeline flexible' }}
-                        </span>
-                    </div>
-                    <a href="/quote-response?request={{ request.name }}" class="btn btn-primary">Submit Quote</a>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="card text-center">
-                <p>No new service requests available at the moment.</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</section>
-
-<section class="section" style="background-color: white;">
-    <div class="container">
-        <div id="pending-quotes">
-            <h2 class="mb-4">Pending Quotes</h2>
-            {% if pending_quotes %}
-            <div class="grid">
-                {% for quote in pending_quotes %}
-                <div class="card">
-                    <h3>{{ quote.request_title }}</h3>
-                    <p class="text-primary mb-2">Quoted Amount: ₹{{ quote.amount }}</p>
-                    <p class="mb-4">{{ quote.details[:200] }}...</p>
-                    <div class="mb-4">
-                        <span class="badge" style="background: var(--warning); padding: 0.5rem; border-radius: 0.5rem;">
-                            Awaiting Response
-                        </span>
-                    </div>
-                    <a href="/quote/{{ quote.name }}" class="btn btn-outline">View Details</a>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="card text-center">
-                <p>No pending quotes.</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</section>
-
-<section class="section">
-    <div class="container">
-        <div id="completed">
-            <h2 class="mb-4">Completed Requests</h2>
-            {% if completed_requests %}
-            <div class="grid">
-                {% for request in completed_requests %}
-                <div class="card">
-                    <h3>{{ request.title }}</h3>
-                    <p class="text-primary mb-2">{{ request.service_category }}</p>
-                    <p class="mb-4">Completed on {{ frappe.format_date(request.completion_date) }}</p>
-                    <div class="mb-4">
-                        <span class="badge" style="background: var(--success); padding: 0.5rem; border-radius: 0.5rem;">
-                            Completed
-                        </span>
-                    </div>
-                    <a href="/request/{{ request.name }}" class="btn btn-outline">View Details</a>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="card text-center">
-                <p>No completed requests yet.</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</section>
 {% endblock %}
 
-{% block style %}
-<style>
-/* Hero Section */
-.hero {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: white;
-    padding: 6rem 0;
-    text-align: center;
-}
-
-.hero h1 {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-}
-
-.hero p {
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
-    opacity: 0.9;
-}
-
-/* Layout */
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-.section {
-    padding: 4rem 0;
-}
-
-/* Grid */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-/* Cards */
-.card {
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    transition: transform 0.2s ease-in-out;
-}
-
-.card:hover {
-    transform: translateY(-4px);
-}
-
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-}
-
-/* Buttons */
-.btn {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-    border: none;
-}
-
-.btn-primary {
-    background-color: var(--primary);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-dark);
-}
-
-.btn-outline {
-    background-color: transparent;
-    border: 2px solid var(--primary);
-    color: var(--primary);
-}
-
-.btn-outline:hover {
-    background-color: var(--primary);
-    color: white;
-}
-
-/* Badges */
-.badge {
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 500;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-}
-
-/* Utilities */
-.text-center { text-align: center; }
-.mb-4 { margin-bottom: 1.5rem; }
-.text-primary { color: var(--primary); }
-</style>
+{% block script %}
+<script>
+$(document).ready(function() {
+    // Handle quote submission
+    $('.quote-submission-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const form = $(this);
+        const requestId = form.data('request');
+        const submitBtn = form.find('button[type="submit"]');
+        const originalText = submitBtn.html();
+        
+        // Get form data
+        const quoteAmount = form.find('input[name="quote_amount"]').val();
+        const quoteDetails = form.find('textarea[name="quote_details"]').val();
+        
+        if (!quoteAmount || !quoteDetails.trim()) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Submitting...');
+        
+        // Prepare quote data
+        const quoteData = {
+            doctype: 'Quote Response',
+            service_request: requestId,
+            quote_amount: parseFloat(quoteAmount),
+            quote_details: quoteDetails,
+            status: 'Submitted'
+        };
+        
+        // Submit quote
+        frappe.call({
+            method: 'frappe.client.insert',
+            args: {
+                doc: quoteData
+            },
+            callback: function(response) {
+                if (response.message) {
+                    // Update status display
+                    const card = form.closest('.boq-card');
+                    const statusBadge = card.find('.status-badge');
+                    statusBadge.removeClass('status-pending').addClass('status-quoted').text('Quoted');
+                    
+                    // Replace form with success message
+                    form.parent().html(`
+                        <div class="text-center p-3">
+                            <i class="fa fa-check-circle text-success fa-2x mb-2"></i>
+                            <p class="text-muted">Quote submitted successfully!</p>
+                            <p><strong>Amount:</strong> ₹${quoteAmount}</p>
+                        </div>
+                    `);
+                    
+                    // Show success message
+                    showAlert('Quote submitted successfully!', 'success');
+                    
+                    // Update stats
+                    updateVendorStats();
+                } else {
+                    showAlert('Error submitting quote. Please try again.', 'error');
+                    submitBtn.prop('disabled', false).html(originalText);
+                }
+            },
+            error: function() {
+                showAlert('Error submitting quote. Please try again.', 'error');
+                submitBtn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+    
+    function showAlert(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const alertHtml = `
+            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        $('.vendor-header').after(alertHtml);
+        
+        // Auto remove after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+    
+    function updateVendorStats() {
+        // Refresh page stats (simplified approach)
+        // In a real app, you'd make an AJAX call to update just the stats
+        setTimeout(function() {
+            location.reload();
+        }, 2000);
+    }
+    
+    // Format currency inputs
+    $('input[name="quote_amount"]').on('input', function() {
+        let value = $(this).val().replace(/[^\d.]/g, '');
+        $(this).val(value);
+    });
+    
+    // Auto-resize textareas
+    $('textarea').on('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+});
+</script>
 {% endblock %} 

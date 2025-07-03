@@ -4,6 +4,16 @@
 
 {% block head_include %}
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+:root {
+    --color-primary: #4CAF50;
+    --color-primary-light: #E8F5E9;
+    --color-secondary: #f8f9fa;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+}
 .admin-container {
     background: #f8f9fa;
     min-height: 100vh;
@@ -11,7 +21,7 @@
 }
 
 .dashboard-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, #81C784 100%);
     color: white;
     border-radius: 15px;
     padding: 30px;
@@ -160,8 +170,8 @@
 }
 
 .search-box:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
 }
 
 .vendor-list-item {
@@ -217,380 +227,256 @@
 {% endblock %}
 
 {% block page_content %}
-<div class="hero" style="padding: 4rem 0;">
-    <div class="container">
-        <h1>Admin Dashboard</h1>
-        <p>Monitor and manage service requests, vendors, and platform activity</p>
-    </div>
-</div>
-
-<div class="section" style="background-color: white;">
-    <div class="container">
-        <div class="grid">
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-users fa-3x"></i>
+<div class="admin-container">
+    <div class="container-fluid">
+        {% if is_admin %}
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2>Admin Dashboard</h2>
+                    <p class="mb-0 opacity-75">Manage service requests, vendors, and monitor system performance</p>
                 </div>
-                <h3>Active Vendors</h3>
-                <p class="mb-4">{{ stats.active_vendors or 0 }} registered vendors</p>
-                <a href="#vendors" class="btn btn-primary">Manage Vendors</a>
-            </div>
-
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-file-text fa-3x"></i>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-light" onclick="location.reload()">
+                        <i class="fa fa-refresh"></i> Refresh
+                    </button>
                 </div>
-                <h3>Open Requests</h3>
-                <p class="mb-4">{{ stats.open_requests or 0 }} pending requests</p>
-                <a href="#requests" class="btn btn-primary">View Requests</a>
-            </div>
-
-            <div class="card">
-                <div class="text-primary mb-4">
-                    <i class="fa fa-check-circle fa-3x"></i>
-                </div>
-                <h3>Completed</h3>
-                <p class="mb-4">{{ stats.completed_requests or 0 }} completed requests</p>
-                <a href="#completed" class="btn btn-primary">View History</a>
             </div>
         </div>
-    </div>
-</div>
 
-<section class="section">
-    <div class="container">
-        <div id="vendors">
+        <!-- Statistics Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number requests-primary">{{ stats.total_requests or 0 }}</div>
+                <div class="stat-label">Total Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number vendors-success">{{ stats.active_vendors or 0 }}</div>
+                <div class="stat-label">Active Vendors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number quotes-warning">{{ stats.total_quotes or 0 }}</div>
+                <div class="stat-label">Quotes Submitted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number revenue-info">{{ stats.service_categories or 0 }}</div>
+                <div class="stat-label">Service Categories</div>
+            </div>
+        </div>
+
+        <!-- Recent Service Requests -->
+        <div class="content-card">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Registered Vendors</h2>
-                <a href="/new-vendor" class="btn btn-primary">
-                    <i class="fa fa-plus"></i> Add Vendor
-                </a>
+                <h5>Recent Service Requests</h5>
+                <a href="/app/service-request" class="btn btn-outline-primary">View All</a>
             </div>
-            
-            {% if vendors %}
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Vendor Name</th>
-                            <th>Categories</th>
-                            <th>Status</th>
-                            <th>Rating</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for vendor in vendors %}
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="{{ vendor.logo or '/assets/threequotes/images/default-vendor.png' }}" 
-                                         alt="{{ vendor.vendor_name }}" 
-                                         style="width: 40px; height: 40px; border-radius: 50%; margin-right: 1rem;">
-                                    <div>
-                                        <strong>{{ vendor.vendor_name }}</strong><br>
-                                        <small class="text-muted">{{ vendor.email }}</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                {% for category in vendor.service_categories %}
-                                <span class="badge" style="background: var(--primary-light); margin-right: 0.5rem;">
-                                    {{ category }}
-                                </span>
-                                {% endfor %}
-                            </td>
-                            <td>
-                                <span class="badge" style="background: {% if vendor.status == 'Active' %}var(--success){% else %}var(--gray-500){% endif %}">
-                                    {{ vendor.status }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="rating">
-                                    {% for i in range(5) %}
-                                    <i class="fa fa-star{% if i < vendor.rating|int %} text-warning{% else %} text-muted{% endif %}"></i>
-                                    {% endfor %}
-                                </div>
-                            </td>
-                            <td>
-                                <a href="/vendor/{{ vendor.name }}" class="btn btn-outline btn-sm">View Profile</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="card text-center">
-                <p>No vendors registered yet.</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</section>
 
-<section class="section" style="background-color: white;">
-    <div class="container">
-        <div id="requests">
-            <h2 class="mb-4">Service Requests</h2>
-            {% if requests %}
-            <div class="grid">
-                {% for request in requests %}
-                <div class="card">
-                    <div class="d-flex justify-content-between mb-3">
-                        <h3>{{ request.title }}</h3>
-                        <span class="badge" style="background: {% if request.status == 'Open' %}var(--primary){% elif request.status == 'In Progress' %}var(--warning){% else %}var(--success){% endif %}">
-                            {{ request.status }}
-                        </span>
-                    </div>
-                    <p class="text-primary mb-2">{{ request.service_category }}</p>
-                    <p class="mb-4">{{ request.description[:200] }}...</p>
-                    <div class="mb-4">
-                        <small class="text-muted">
-                            Submitted by {{ request.customer_name }} on {{ frappe.format_date(request.creation) }}
-                        </small>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <a href="/request/{{ request.name }}" class="btn btn-primary">View Details</a>
-                        <button class="btn btn-outline assign-vendor" data-request="{{ request.name }}">
-                            Assign Vendor
-                        </button>
+            <div id="requests-list">
+                {% for request in service_requests %}
+                <div class="request-item">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-1">{{ request.customer_name }} - {{ request.service_category_name }}</h6>
+                                <span class="status-badge status-{{ request.status|lower|replace(' ', '-') }}">
+                                    {{ request.status }}
+                                </span>
+                            </div>
+                            <p class="text-muted mb-2">
+                                <strong>Email:</strong> {{ request.customer_email }}<br>
+                                <strong>Request ID:</strong> {{ request.name }}<br>
+                                <strong>Created:</strong> {{ request.creation.strftime('%d %b %Y %H:%M') }}
+                            </p>
+                            <p class="mb-2">{{ request.chat_transcript[:150] }}{% if request.chat_transcript|length > 150 %}...{% endif %}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="action-buttons">
+                                <a href="/app/service-request/{{ request.name }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fa fa-eye"></i> View
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
-            {% else %}
-            <div class="card text-center">
-                <p>No service requests available.</p>
-            </div>
-            {% endif %}
         </div>
-    </div>
-</section>
 
-<section class="section">
-    <div class="container">
-        <div id="completed">
-            <h2 class="mb-4">Completed Requests</h2>
-            {% if completed %}
-            <div class="grid">
-                {% for request in completed %}
-                <div class="card">
-                    <h3>{{ request.title }}</h3>
-                    <p class="text-primary mb-2">{{ request.service_category }}</p>
-                    <p class="mb-4">Completed on {{ frappe.format_date(request.completion_date) }}</p>
-                    <div class="mb-4">
-                        <span class="badge" style="background: var(--success)">Completed</span>
-                        <span class="badge" style="background: var(--primary-light); margin-left: 0.5rem;">
-                            ₹{{ request.final_amount }}
-                        </span>
+        <!-- Quick Actions -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="content-card">
+                    <h5>Quick Actions</h5>
+                    <div class="d-grid gap-2">
+                        <a href="/app/vendor/new" class="btn btn-success">
+                            <i class="fa fa-plus"></i> Add New Vendor
+                        </a>
+                        <a href="/app/service-category/new" class="btn btn-primary">
+                            <i class="fa fa-plus"></i> Add Service Category
+                        </a>
+                        <a href="/app/boq-template/new" class="btn btn-info">
+                            <i class="fa fa-file-text"></i> Add BOQ Template
+                        </a>
                     </div>
-                    <a href="/request/{{ request.name }}" class="btn btn-outline">View Details</a>
                 </div>
-                {% endfor %}
             </div>
-            {% else %}
-            <div class="card text-center">
-                <p>No completed requests yet.</p>
+            <div class="col-md-6">
+                <div class="content-card">
+                    <h5>System Links</h5>
+                    <div class="d-grid gap-2">
+                        <a href="/app/service-request" class="btn btn-outline-primary">
+                            <i class="fa fa-list"></i> All Service Requests
+                        </a>
+                        <a href="/app/vendor" class="btn btn-outline-success">
+                            <i class="fa fa-users"></i> All Vendors
+                        </a>
+                        <a href="/app/quote-response" class="btn btn-outline-warning">
+                            <i class="fa fa-quote-left"></i> All Quotes
+                        </a>
+                    </div>
+                </div>
             </div>
-            {% endif %}
         </div>
+
+        {% else %}
+        <!-- Access Denied -->
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="content-card text-center">
+                    <i class="fa fa-lock fa-4x text-muted mb-4"></i>
+                    <h3>Access Denied</h3>
+                    <p class="lead mb-4">You don't have permission to access the admin dashboard.</p>
+                    <a href="/" class="btn btn-primary">Go to Homepage</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
-</section>
-{% endblock %}
-
-{% block style %}
-<style>
-/* Hero Section */
-.hero {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: white;
-    padding: 6rem 0;
-    text-align: center;
-}
-
-.hero h1 {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-}
-
-.hero p {
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
-    opacity: 0.9;
-}
-
-/* Layout */
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-.section {
-    padding: 4rem 0;
-}
-
-/* Grid */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-/* Cards */
-.card {
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    transition: transform 0.2s ease-in-out;
-}
-
-.card:hover {
-    transform: translateY(-4px);
-}
-
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-}
-
-/* Buttons */
-.btn {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-    border: none;
-}
-
-.btn-primary {
-    background-color: var(--primary);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-dark);
-}
-
-.btn-outline {
-    background-color: transparent;
-    border: 2px solid var(--primary);
-    color: var(--primary);
-}
-
-.btn-outline:hover {
-    background-color: var(--primary);
-    color: white;
-}
-
-.btn-sm {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-}
-
-/* Tables */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1.5rem;
-}
-
-.table th,
-.table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--gray-200);
-}
-
-.table th {
-    background-color: var(--gray-100);
-    font-weight: 600;
-    text-align: left;
-}
-
-/* Badges */
-.badge {
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 500;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-}
-
-/* Rating */
-.rating {
-    color: #ffc107;
-}
-
-/* Utilities */
-.text-center { text-align: center; }
-.mb-4 { margin-bottom: 1.5rem; }
-.text-primary { color: var(--primary); }
-.text-muted { color: var(--gray-600); }
-.d-flex { display: flex; }
-.align-items-center { align-items: center; }
-.justify-content-between { justify-content: space-between; }
-.gap-2 { gap: 0.5rem; }
-</style>
+</div>
 {% endblock %}
 
 {% block script %}
 <script>
-    frappe.ready(function() {
-        $('.assign-vendor').on('click', function() {
-            const requestId = $(this).data('request');
-            frappe.call({
-                method: 'threequotes.templates.pages.admin.get_eligible_vendors',
-                args: { request: requestId },
-                callback: function(r) {
-                    if(!r.exc) {
-                        // Show vendor selection dialog
-                        const d = new frappe.ui.Dialog({
-                            title: 'Assign Vendor',
-                            fields: [
-                                {
-                                    label: 'Select Vendor',
-                                    fieldname: 'vendor',
-                                    fieldtype: 'Select',
-                                    options: r.message.map(v => ({ label: v.vendor_name, value: v.name }))
-                                }
-                            ],
-                            primary_action_label: 'Assign',
-                            primary_action(values) {
-                                frappe.call({
-                                    method: 'threequotes.templates.pages.admin.assign_vendor',
-                                    args: {
-                                        request: requestId,
-                                        vendor: values.vendor
-                                    },
-                                    callback: function(r) {
-                                        if(!r.exc) {
-                                            frappe.show_alert({
-                                                message: 'Vendor assigned successfully',
-                                                indicator: 'green'
-                                            });
-                                            setTimeout(() => location.reload(), 2000);
-                                        }
-                                    }
-                                });
-                                d.hide();
-                            }
-                        });
-                        d.show();
-                    }
-                }
-            });
-        });
+$(document).ready(function() {
+    // Tab switching
+    $('.tab-link').click(function(e) {
+        e.preventDefault();
+        const targetTab = $(this).data('tab');
+        
+        $('.tab-link').removeClass('active');
+        $('.tab-content').removeClass('active');
+        
+        $(this).addClass('active');
+        $('#' + targetTab + '-tab').addClass('active');
     });
+
+    // Search functionality
+    $('#request-search').on('input', function() {
+        filterRequests();
+    });
+
+    $('#vendor-search').on('input', function() {
+        filterVendors();
+    });
+});
+
+function filterRequests() {
+    const searchTerm = $('#request-search').val().toLowerCase();
+    const statusFilter = $('#status-filter').val();
+    const categoryFilter = $('#category-filter').val();
+
+    $('.request-item').each(function() {
+        const item = $(this);
+        const text = item.text().toLowerCase();
+        const status = item.data('status');
+        const category = item.data('category');
+
+        const matchesSearch = text.includes(searchTerm);
+        const matchesStatus = !statusFilter || status === statusFilter;
+        const matchesCategory = !categoryFilter || category === categoryFilter;
+
+        if (matchesSearch && matchesStatus && matchesCategory) {
+            item.show();
+        } else {
+            item.hide();
+        }
+    });
+}
+
+function filterVendors() {
+    const searchTerm = $('#vendor-search').val().toLowerCase();
+    const statusFilter = $('#vendor-status-filter').val();
+
+    $('.vendor-list-item').each(function() {
+        const item = $(this);
+        const text = item.text().toLowerCase();
+        const matchesSearch = text.includes(searchTerm);
+        
+        if (matchesSearch) {
+            item.show();
+        } else {
+            item.hide();
+        }
+    });
+}
+
+function generateBOQ(requestId) {
+    if (confirm('Generate BOQ for this request?')) {
+        frappe.call({
+            method: 'threequotes.threequotes.doctype.service_request.service_request.generate_boq',
+            args: {
+                request_id: requestId
+            },
+            callback: function(response) {
+                if (response.message) {
+                    alert('BOQ generated successfully!');
+                    location.reload();
+                } else {
+                    alert('Error generating BOQ. Please try again.');
+                }
+            }
+        });
+    }
+}
+
+function sendToVendors(requestId) {
+    if (confirm('Send this BOQ to all relevant vendors?')) {
+        frappe.call({
+            method: 'threequotes.threequotes.doctype.service_request.service_request.send_boq_to_vendors',
+            args: {
+                request_id: requestId
+            },
+            callback: function(response) {
+                if (response.message) {
+                    alert('BOQ sent to vendors successfully!');
+                    location.reload();
+                } else {
+                    alert('Error sending BOQ to vendors. Please try again.');
+                }
+            }
+        });
+    }
+}
+
+function viewQuotes(requestId) {
+    window.open('/app/quote-response?service_request=' + requestId, '_blank');
+}
+
+function testVendorEmail(vendorId) {
+    frappe.call({
+        method: 'threequotes.threequotes.doctype.vendor.vendor.send_test_email',
+        args: {
+            vendor_id: vendorId
+        },
+        callback: function(response) {
+            if (response.message) {
+                alert('Test email sent successfully!');
+            } else {
+                alert('Error sending test email. Please check vendor email settings.');
+            }
+        }
+    });
+}
 </script>
 {% endblock %} 
